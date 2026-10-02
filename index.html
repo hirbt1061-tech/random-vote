@@ -1,283 +1,68 @@
 <!doctype html>
+
 <html lang="zh-CN">
 
 <head>
 
 <meta charset="utf-8">
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1"
->
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>匿名投票</title>
 
 <style>
 
-:root {
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#222;background:#f6f6f6}
 
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+*{box-sizing:border-box}
 
-  color:#222;
+body{margin:0;padding:28px 16px}
 
-  background:#f6f6f6;
-}
+.card{max-width:680px;margin:0 auto;background:white;border-radius:18px;padding:24px;box-shadow:0 6px 30px #00000010}
 
+h1{font-size:25px;margin:0 0 8px}
 
-* {
-  box-sizing:border-box;
-}
+h2{font-size:19px}
 
+.muted{color:#777;font-size:14px}
 
-body {
+label{display:block;font-weight:600;margin:15px 0 7px}
 
-  margin:0;
+input[type=text],input[type=password],input[type=url],input[type=number]{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:15px}
 
-  padding:28px 16px;
-}
+select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:15px}
 
+.option-input{display:flex;gap:8px;margin:8px 0}
 
-.card {
+.option-input input{flex:1}
 
-  max-width:680px;
+.option{display:flex;gap:10px;align-items:center;border:1px solid #ddd;border-radius:12px;padding:12px;margin:10px 0;cursor:pointer;font-weight:normal}
 
-  margin:0 auto;
+.option input{width:18px;height:18px}
 
-  background:white;
+.btn{border:0;border-radius:12px;padding:11px 16px;cursor:pointer;font-size:15px;background:#222;color:white}
 
-  border-radius:18px;
+.btn.secondary{background:#eee;color:#222}
 
-  padding:24px;
+.row{display:flex;gap:10px;flex-wrap:wrap}
 
-  box-shadow:
-    0 6px 30px #00000010;
-}
+.notice{padding:11px 13px;border-radius:10px;background:#f1f1f1;margin:12px 0;font-size:14px}
 
+.divider{height:1px;background:#eee;margin:22px 0}
 
-h1 {
+.progress{height:12px;background:#eee;border-radius:99px;overflow:hidden}
 
-  font-size:25px;
+.bar{height:100%;background:#222}
 
-  margin:
-    0 0 8px;
-}
+.result{margin:15px 0}
 
+.result-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
 
-h2 {
-
-  font-size:19px;
-}
-
-
-.muted {
-
-  color:#777;
-
-  font-size:14px;
-}
-
-
-label {
-
-  display:block;
-
-  font-weight:600;
-
-  margin:
-    15px 0 7px;
-}
-
-
-input[type=text],
-input[type=password],
-input[type=url],
-input[type=number] {
-
-  width:100%;
-
-  padding:12px;
-
-  border:
-    1px solid #ccc;
-
-  border-radius:10px;
-
-  font-size:15px;
-}
-
-
-.option-input {
-
-  display:flex;
-
-  gap:8px;
-
-  margin:8px 0;
-}
-
-
-.option-input input {
-
-  flex:1;
-}
-
-
-.option {
-
-  display:flex;
-
-  gap:10px;
-
-  align-items:center;
-
-  border:
-    1px solid #ddd;
-
-  border-radius:12px;
-
-  padding:12px;
-
-  margin:10px 0;
-
-  cursor:pointer;
-
-  font-weight:normal;
-}
-
-
-.option input {
-
-  width:18px;
-
-  height:18px;
-}
-
-
-.btn {
-
-  border:0;
-
-  border-radius:12px;
-
-  padding:11px 16px;
-
-  cursor:pointer;
-
-  font-size:15px;
-
-  background:#222;
-
-  color:white;
-}
-
-
-.btn.secondary {
-
-  background:#eee;
-
-  color:#222;
-}
-
-
-.row {
-
-  display:flex;
-
-  gap:10px;
-
-  flex-wrap:wrap;
-}
-
-
-.notice {
-
-  padding:11px 13px;
-
-  border-radius:10px;
-
-  background:#f1f1f1;
-
-  margin:12px 0;
-
-  font-size:14px;
-}
-
-
-.divider {
-
-  height:1px;
-
-  background:#eee;
-
-  margin:22px 0;
-}
-
-
-.progress {
-
-  height:12px;
-
-  background:#eee;
-
-  border-radius:99px;
-
-  overflow:hidden;
-}
-
-
-.bar {
-
-  height:100%;
-
-  background:#222;
-}
-
-
-.result {
-
-  margin:15px 0;
-}
-
-
-.result-head {
-
-  display:flex;
-
-  justify-content:space-between;
-
-  gap:12px;
-
-  margin-bottom:6px;
-}
-
-
-.small {
-
-  font-size:12px;
-
-  color:#888;
-
-  line-height:1.5;
-}
-
-
-.option-count {
-
-  margin-top:10px;
-
-  font-size:14px;
-
-  color:#777;
-}
+.small{font-size:12px;color:#888;line-height:1.5}
 
 </style>
 
 </head>
-
 
 <body>
 
@@ -287,889 +72,415 @@ input[type=number] {
 
 </div>
 
-
 <script>
 
-// 固定 Apps Script 后端地址，不再依赖 localStorage
-const FIXED_API_URL = "https://script.google.com/macros/s/AKfycbyr48uqkkW6qVEY7xoB75aI8uoroWFJejuRTr2Id3gOSLpQUggzL9HW6_Q6NAjRTWPHOA/exec";
+/* ============================================================
 
-const qs =
-  new URLSearchParams(
-    location.search
-  );
+把这里改成你自己的 Apps Script Web App /exec 地址
 
+============================================================ */
 
-const pollId =
-  qs.get("poll");
+const API_URL = "https://script.google.com/macros/s/AKfycbyr48uqkkW6qVEY7xoB75aI8uoroWFJejuRTr2Id3gOSLpQUggzL9HW6_Q6NAjRTWPHOA/exec";
 
+const qs = new URLSearchParams(location.search);
+
+const pollId = qs.get("poll");
 
 const state = {
 
-  api: FIXED_API_URL,
-
-  adminKey:
-    sessionStorage.getItem(
-      "vote_admin_key"
-    ) || ""
+adminKey: sessionStorage.getItem("vote_admin_key") || ""
 
 };
 
+function esc(s){
 
-function esc(s) {
+return String(s ?? "").replace(/[&<>"']/g, c => ({
 
-  return String(s ?? "")
-    .replace(
-      /[&<>"']/g,
-      c => ({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[c])
-    );
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+
+}[c]));
 
 }
 
+function apiCall(body){
 
-function apiCall(body) {
+return fetch(API_URL, {
 
-  return fetch(
-    state.api,
-    {
+method: "POST",
 
-      method:"POST",
+headers: { "Content-Type": "text/plain;charset=utf-8" },
 
-      headers:{
-        "Content-Type":
-          "text/plain;charset=utf-8"
-      },
+body: JSON.stringify(body)
 
-      body:
-        JSON.stringify(body)
+})
 
-    }
+.then(async r => {
 
-  )
+const text = await r.text();
 
-  .then(async r => {
+let data;
 
-    const text =
-      await r.text();
+try { data = JSON.parse(text); }
 
-    let data;
+catch { throw new Error(text || "服务器返回异常"); }
 
-    try {
+if (!data.ok) throw new Error(data.error || "操作失败");
 
-      data =
-        JSON.parse(text);
+return data;
 
-    } catch {
-
-      throw new Error(
-        text ||
-        "服务器返回异常"
-      );
-
-    }
-
-
-    if (data.ok === false || data.success === false) {
-
-      throw new Error(
-        data.error ||
-        "操作失败"
-      );
-
-    }
-
-
-    return data;
-
-  });
+});
 
 }
 
+function getData(){
 
-function getData() {
+return fetch(API_URL + "?action=getPoll&pollId=" + encodeURIComponent(pollId))
 
-  return fetch(
+.then(r => r.json())
 
-    state.api +
-    "?action=getPoll&pollId=" +
-    encodeURIComponent(
-      pollId
-    )
+.then(d => {
 
-  )
+if (!d.ok) throw new Error(d.error || "读取失败");
 
-  .then(r => r.json())
+return d;
 
-  .then(d => {
-
-    if (d.ok === false || d.success === false) {
-
-      throw new Error(
-        d.error ||
-        "读取失败"
-      );
-
-    }
-
-    return d;
-
-  });
+});
 
 }
 
+/* ---------------- 创建投票 ---------------- */
 
-// ================================
-// 创建投票页面
-// ================================
+function renderSetup(){
 
-function renderSetup() {
+document.getElementById("app").innerHTML = `
 
-  document.getElementById(
-    "app"
-  ).innerHTML = `
+<h1>投票创建器</h1>
 
-    <h1>投票创建器</h1>
+<div class="muted">创建后会生成一个可直接分享的投票链接。</div>
 
-    <div class="muted">
-      创建后会生成一个可直接分享的投票链接。
-    </div>
+<label>管理员密钥</label>
 
+<input id="key" type="password" placeholder="你在 Code.gs 中设置的密码">
 
-    <label>
-      Apps Script Web App URL
-    </label>
+<label>投票标题</label>
 
-    <input
-      id="api"
-      type="url"
-      readonly
-      value="${esc(state.api)}"
-    >
+<input id="title" type="text" placeholder="例如：你最喜欢哪个角色？">
 
+<label>投票类型</label>
 
-    <label>
-      管理员密钥
-    </label>
+<select id="type" onchange="updateChoiceSettings()">
 
-    <input
-      id="key"
-      type="password"
-      placeholder="你在 Code.gs 中设置的密码"
-    >
+<option value="single">单选</option>
 
+<option value="multiple">多选</option>
 
-    <label>
-      投票标题
-    </label>
+</select>
 
-    <input
-      id="title"
-      type="text"
-      placeholder="例如：你最喜欢哪个角色？"
-    >
+<div id="choiceSettings" style="display:none">
 
+<label>最少选择数量</label>
 
-    <label>
-      投票类型
-    </label>
+<input id="minChoices" type="number" min="1" value="1">
 
-    <select
-      id="type"
-      style="
-        width:100%;
-        padding:12px;
-        border:1px solid #ccc;
-        border-radius:10px;
-        font-size:15px;
-      "
-      onchange="updateChoiceSettings()"
-    >
+<label>最多选择数量</label>
 
-      <option value="single">
-        单选
-      </option>
+<input id="maxChoices" type="number" min="0" value="0">
 
-      <option value="multiple">
-        多选
-      </option>
+<div class="small">最多选择数量填 0 表示不限。</div>
 
-    </select>
+</div>
 
+<label>选项</label>
 
-    <div
-      id="choiceSettings"
-      style="display:none"
-    >
+<div id="opts"></div>
 
-      <label>
-        最少选择数量
-      </label>
+<div class="row">
 
-      <input
-        id="minChoices"
-        type="number"
-        min="1"
-        value="1"
-      >
+<button class="btn secondary" onclick="addOpt()">＋添加选项</button>
 
-      <label>
-        最多选择数量
-      </label>
+<button class="btn" onclick="createPoll()">创建投票</button>
 
-      <input
-        id="maxChoices"
-        type="number"
-        min="0"
-        value="0"
-      >
+</div>
 
-      <div class="small">
-        最多选择数量填 0 表示不限。
-      </div>
+`;
 
-    </div>
-
-
-    <label>
-      选项
-    </label>
-
-    <div id="opts"></div>
-
-
-    <div class="row">
-
-      <button
-        class="btn secondary"
-        onclick="addOpt()"
-      >
-        ＋添加选项
-      </button>
-
-      <button
-        class="btn"
-        onclick="createPoll()"
-      >
-        创建投票
-      </button>
-
-    </div>
-
-  `;
-
-
-  addOpt();
-
-  addOpt();
+addOpt(); addOpt();
 
 }
 
+function updateChoiceSettings(){
 
-// ================================
-// 单选/多选设置
-// ================================
+const type = document.getElementById("type").value;
 
-function updateChoiceSettings() {
+document.getElementById("choiceSettings").style.display =
 
-  const type =
-    document.getElementById(
-      "type"
-    ).value;
-
-
-  document.getElementById(
-    "choiceSettings"
-  ).style.display =
-    type === "multiple"
-      ? "block"
-      : "none";
+type === "multiple" ? "block" : "none";
 
 }
 
+function addOpt(v=""){
 
-// ================================
-// 添加选项
-// ================================
+const box = document.getElementById("opts");
 
-function addOpt(v="") {
+const row = document.createElement("div");
 
-  const box =
-    document.getElementById(
-      "opts"
-    );
+row.className = "option-input";
 
+row.innerHTML = `
 
-  const row =
-    document.createElement(
-      "div"
-    );
+<input type="text" placeholder="选项 ${box.children.length + 1}" value="${esc(v)}">
 
+<button class="btn secondary" onclick="this.parentElement.remove()">删除</button>
 
-  row.className =
-    "option-input";
+`;
 
-
-  row.innerHTML = `
-
-    <input
-      type="text"
-      placeholder="选项 ${box.children.length + 1}"
-      value="${esc(v)}"
-    >
-
-    <button
-      class="btn secondary"
-      onclick="this.parentElement.remove()"
-    >
-      删除
-    </button>
-
-  `;
-
-
-  box.appendChild(row);
+box.appendChild(row);
 
 }
 
+async function createPoll(){
 
-// ================================
-// 创建投票
-// ================================
+const key = document.getElementById("key").value;
 
-async function createPoll() {
+const title = document.getElementById("title").value.trim();
 
-  const key =
-    document.getElementById(
-      "key"
-    ).value;
+const type = document.getElementById("type").value;
 
+const options = [...document.querySelectorAll("#opts input")]
 
-  const title =
-    document.getElementById(
-      "title"
-    ).value.trim();
+.map(x => x.value.trim()).filter(Boolean);
 
+let minChoices = 1, maxChoices = 1;
 
-  const type =
-    document.getElementById(
-      "type"
-    ).value;
+if (type === "multiple"){
 
+minChoices = Number(document.getElementById("minChoices").value) || 1;
 
-  const options =
-    [
-      ...document.querySelectorAll(
-        "#opts input"
-      )
-    ]
-
-    .map(x => x.value.trim())
-
-    .filter(Boolean);
-
-
-  let minChoices = 1;
-
-  let maxChoices = 1;
-
-
-  if (
-    type === "multiple"
-  ) {
-
-    minChoices =
-      Number(
-        document.getElementById(
-          "minChoices"
-        ).value
-      ) || 1;
-
-
-    maxChoices =
-      Number(
-        document.getElementById(
-          "maxChoices"
-        ).value
-      ) || 0;
-
-  }
-
-
-  if (
-    !key ||
-    !title ||
-    options.length < 2
-  ) {
-
-    return alert(
-      "请填写完整信息，并至少设置两个选项。"
-    );
-
-  }
-
-
-  state.adminKey = key;
-
-  sessionStorage.setItem(
-    "vote_admin_key",
-    key
-  );
-
-
-  try {
-
-    const d =
-      await apiCall({
-
-        action:
-          "createPoll",
-
-        adminKey:
-          key,
-
-        title:
-          title,
-
-        options:
-          options,
-
-        type:
-          type,
-
-        minChoices:
-          minChoices,
-
-        maxChoices:
-          maxChoices
-
-      });
-
-
-    const pollIdVal = d.pollId || (d.poll && d.poll.id);
-
-    const url =
-      location.origin +
-      location.pathname +
-      "?poll=" +
-      encodeURIComponent(
-        pollIdVal
-      );
-
-
-    document.getElementById(
-      "app"
-    ).innerHTML = `
-
-      <h1>
-        投票已创建
-      </h1>
-
-
-      <div class="notice">
-
-        投票 ID：
-        ${esc(pollIdVal)}
-
-      </div>
-
-
-      <label>
-        分享链接
-      </label>
-
-
-      <input
-        id="shareUrl"
-        type="text"
-        readonly
-        value="${esc(url)}"
-      >
-
-
-      <div
-        class="row"
-        style="margin-top:10px"
-      >
-
-        <button
-          class="btn"
-          onclick="
-            navigator.clipboard.writeText(
-              document.getElementById(
-                'shareUrl'
-              ).value
-            );
-            alert('已复制');
-          "
-        >
-          复制链接
-        </button>
-
-
-        <button
-          class="btn secondary"
-          onclick="
-            location.href =
-              '?poll=${encodeURIComponent(
-                pollIdVal
-              )}'
-          "
-        >
-          打开投票
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-  catch(e) {
-
-    alert(
-      e.message
-    );
-
-  }
+maxChoices = Number(document.getElementById("maxChoices").value) || 0;
 
 }
 
+if (!key || !title || options.length < 2){
 
-// ================================
-// 投票页面
-// ================================
-
-async function renderPoll() {
-
-  try {
-
-    const d =
-      await getData();
-
-
-    const p =
-      d.poll || d;
-
-
-    const pollType = p.type || "single";
-    const pollTotal = p.total || 0;
-    const pollMin = p.minChoices || 1;
-    const pollMax = p.maxChoices || 0;
-    const pollTitle = p.title || "在线投票";
-    const pollOpts = p.options || [];
-
-
-    document.getElementById(
-      "app"
-    ).innerHTML = `
-
-      <h1>
-        ${esc(pollTitle)}
-      </h1>
-
-
-      <div class="muted">
-
-        ${
-          pollType === "multiple"
-            ? "多选投票"
-            : "单选投票"
-        }
-
-        · 共 ${pollTotal} 票
-
-      </div>
-
-
-      <div id="voteBox"></div>
-
-      <div id="results"></div>
-
-
-      <div class="divider"></div>
-
-
-      <div class="small">
-
-        ${
-          pollType === "multiple"
-            ? `可选择 ${pollMin} 个以上${
-                pollMax > 0
-                  ? `，最多 ${pollMax} 个`
-                  : ""
-              }。`
-            : "请选择一个选项。"
-        }
-
-      </div>
-
-    `;
-
-
-    const alreadyVoted =
-      localStorage.getItem(
-        "voted_" + pollId
-      );
-
-
-    if (
-      alreadyVoted
-    ) {
-
-      if (d.results) {
-        showResults(pollTotal, d.results);
-      }
-      return;
-
-    }
-
-
-    let inputType =
-      pollType === "multiple"
-        ? "checkbox"
-        : "radio";
-
-
-    document.getElementById(
-      "voteBox"
-    ).innerHTML = `
-
-      ${pollOpts.map(
-        (o,i) => `
-
-          <label class="option">
-
-            <input
-              type="${inputType}"
-              name="vote"
-              value="${i}"
-            >
-
-            <span>
-              ${esc(o)}
-            </span>
-
-          </label>
-
-        `
-      ).join("")}
-
-
-      <button
-        class="btn"
-        style="margin-top:12px;"
-        onclick="submitVote('${pollType}', ${pollMin}, ${pollMax})"
-      >
-        提交投票
-      </button>
-
-    `;
-
-
-    if (d.results) {
-      showResults(pollTotal, d.results);
-    }
-
-  }
-
-  catch(e) {
-
-    document.getElementById(
-      "app"
-    ).innerHTML = `
-
-      <h1>
-        打不开投票
-      </h1>
-
-      <div class="notice">
-        ${esc(e.message)}
-      </div>
-
-    `;
-
-  }
+return alert("请填写完整信息，并至少设置两个选项。");
 
 }
 
+state.adminKey = key;
 
-// ================================
-// 提交投票
-// ================================
+sessionStorage.setItem("vote_admin_key", key);
 
-async function submitVote(type, minChoices, maxChoices) {
+try {
 
-  const selected =
-    [
-      ...document.querySelectorAll(
-        'input[name="vote"]:checked'
-      )
-    ]
+const d = await apiCall({
 
-    .map(
-      x => Number(x.value)
-    );
+action: "createPoll",
 
+adminKey: key,
 
-  if (
-    selected.length === 0
-  ) {
+title, options, type, minChoices, maxChoices
 
-    return alert(
-      "请选择至少一个选项。"
-    );
+});
 
-  }
+const url = location.origin + location.pathname + "?poll=" + encodeURIComponent(d.pollId);
 
-  if (type === "multiple") {
-    if (minChoices > 0 && selected.length < minChoices) {
-      return alert(`请至少选择 ${minChoices} 个选项。`);
-    }
-    if (maxChoices > 0 && selected.length > maxChoices) {
-      return alert(`最多只能选择 ${maxChoices} 个选项。`);
-    }
-  }
+document.getElementById("app").innerHTML = `
 
+<h1>投票已创建</h1>
 
-  try {
+<div class="notice">投票 ID：${esc(d.pollId)}</div>
 
-    await apiCall({
+<label>分享链接</label>
 
-      action:
-        "vote",
+<input id="shareUrl" type="text" readonly value="${esc(url)}">
 
-      pollId:
-        pollId,
+<div class="row" style="margin-top:10px">
 
-      selectedOptions:
-        selected,
+<button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value);alert('已复制');">复制链接</button>
 
-      selected:
-        selected
+<button class="btn secondary" onclick="location.href='?poll=${encodeURIComponent(d.pollId)}'">打开投票</button>
 
-    });
+</div>
 
+`;
 
-    localStorage.setItem(
-      "voted_" + pollId,
-      "1"
-    );
+} catch(e){
 
-
-    alert("投票成功！");
-    renderPoll();
-
-  }
-
-  catch(e) {
-
-    alert(
-      e.message
-    );
-
-  }
+alert(e.message);
 
 }
 
+}
 
-// ================================
-// 显示结果
-// ================================
+/* ---------------- 投票页面 ---------------- */
 
-function showResults(
-  total,
-  results
-) {
+async function renderPoll(){
 
-  document.getElementById(
-    "results"
-  ).innerHTML = `
+try {
 
-    <div class="divider"></div>
+const d = await getData();
 
-    <h2>
-      当前结果
-    </h2>
+const p = d.poll;
 
+document.getElementById("app").innerHTML = `
 
-    ${results.map(
-      r => {
+<h1>${esc(p.title)}</h1>
 
-        const count = r.count !== undefined ? r.count : (r.votes || 0);
-        const optText = r.option !== undefined ? r.option : (r.text || "");
+<div class="muted">
 
-        const pct =
-          total
-            ? count /
-              total *
-              100
-            : 0;
+${p.type === "multiple" ? "多选投票" : "单选投票"} · 共 ${p.total} 票
 
+</div>
 
-        return `
+<div id="voteBox"></div>
 
-          <div class="result">
+<div id="results"></div>
 
-            <div class="result-head">
+<div class="divider"></div>
 
-              <span>
-                ${esc(optText)}
-              </span>
+<div class="small">
 
-              <b>
-                ${pct.toFixed(1)}\%                 (${count}票)
-              </b>
+${p.type === "multiple"
 
-            </div>
+? `可选择 ${p.minChoices} 个以上${p.maxChoices > 0 ? `，最多 ${p.maxChoices} 个` : ""}。`
 
+: "请选择一个选项。"}
 
-            <div class="progress">
+</div>
 
-              <div
-                class="bar"
-                style="
-                  width:${pct}%
-                "
-              ></div>
+`;
 
-            </div>
+const alreadyVoted = localStorage.getItem("voted_" + p.id);
 
-          </div>
+if (alreadyVoted){
 
-        `;
+showResults(p, d.results);
 
-      }
-    ).join("")}
-
-
-    <div class="muted">
-
-      总投票人数：
-      ${total}
-
-    </div>
-
-  `;
+return;
 
 }
 
+const inputType = p.type === "multiple" ? "checkbox" : "radio";
 
-// ================================
-// 启动
-// ================================
+document.getElementById("voteBox").innerHTML = `
 
-if (pollId) {
+${p.options.map((o,i) => `
 
-  renderPoll();
+<label class="option">
+
+<input type="${inputType}" name="vote" value="${i}">
+
+<span>${esc(o)}</span>
+
+</label>
+
+`).join("")}
+
+<button class="btn" onclick="submitVote()">投票</button>
+
+`;
+
+showResults(p, d.results);
+
+} catch(e){
+
+document.getElementById("app").innerHTML = `
+
+<h1>打不开投票</h1>
+
+<div class="notice">${esc(e.message)}</div>
+
+`;
+
+}
+
+}
+
+async function submitVote(){
+
+const selected = [...document.querySelectorAll('input[name="vote"]:checked')]
+
+.map(x => Number(x.value));
+
+if (selected.length === 0) return alert("请选择至少一个选项。");
+
+try {
+
+await apiCall({
+
+action: "vote",
+
+pollId: pollId,
+
+selectedOptions: selected
+
+});
+
+localStorage.setItem("voted_" + pollId, "1");
+
+renderPoll();
+
+} catch(e){
+
+alert(e.message);
+
+}
+
+}
+
+function showResults(p, results){
+
+const total = p.total;
+
+document.getElementById("results").innerHTML = `
+
+<div class="divider"></div>
+
+<h2>当前结果</h2>
+
+${results.map(r => {
+
+const pct = total ? r.count / total * 100 : 0;
+
+return `
+
+<div class="result">
+
+<div class="result-head">
+
+<span>${esc(r.option)}</span>
+
+<b>${pct.toFixed(1)}% ${r.count}票</b>
+
+</div>
+
+<div class="progress">
+
+<div class="bar" style="width:${pct}%"></div>
+
+</div>
+
+</div>
+
+`;
+
+}).join("")}
+
+<div class="muted">总投票人数：${total}</div>
+
+`;
+
+}
+
+/* ---------------- 启动 ---------------- */
+
+if (pollId){
+
+renderPoll();
 
 } else {
 
-  renderSetup();
+renderSetup();
 
 }
 
