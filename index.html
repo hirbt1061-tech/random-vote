@@ -1,70 +1,56 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>投票</title>
+<body style="font-family:sans-serif;max-width:480px;margin:2rem auto;padding:0 1rem">
+<h2>你的标题（可多选）</h2>
+<div id="app">加载中…</div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyveqrivsoOY1SGqZbY4YaG2Vvi4INh5zS_KNx5Q6v647c-R2p5x7XHB5dClPtsQcWJ/exec";
+const app = document.getElementById("app");
 
-    <title>匿名投票</title>
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 
-    <link rel="stylesheet" href="style.css">
-</head>
+function showResults(results) {
+  app.innerHTML = results.map(r =>
+    '<div style="margin:8px 0">' + esc(r.option) + "：" + r.percentage + "%（" + r.votes + "票）" +
+    '<div style="background:#eee"><div style="background:#4a8;height:10px;width:' + r.percentage + '%"></div></div></div>'
+  ).join("");
+}
 
-<body>
+function showForm(options) {
+  app.innerHTML = options.map((o, i) =>
+    '<label style="display:block;margin:8px 0"><input type="checkbox" value="' + i + '"> ' + esc(o) + "</label>"
+  ).join("") + '<button id="go">提交</button> <span id="msg" style="color:#c33"></span>';
 
-<div class="container">
+  document.getElementById("go").onclick = async () => {
+    const selected = [...document.querySelectorAll("input:checked")].map(e => options[+e.value]);
+    const msg = document.getElementById("msg");
+    if (!selected.length) { msg.textContent = "至少选一项"; return; }
+    msg.textContent = "提交中…";
+    try {
+      const r = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },  // 关键：避免预检请求
+        body: JSON.stringify({ selected })
+      });
+      const data = await r.json();
+      if (data.success) showResults(data.results);
+      else msg.textContent = data.message;
+    } catch (err) {
+      msg.textContent = "提交失败：" + err;
+    }
+  };
+}
 
-    <h1>你最喜欢以下哪些角色？</h1>
-
-    <p class="description">
-        可多选。提交后才能查看投票结果。
-    </p>
-
-    <form id="pollForm">
-
-        <label class="option">
-            <input type="checkbox" value="沈清秋">
-            <span>沈清秋</span>
-        </label>
-
-        <label class="option">
-            <input type="checkbox" value="柳清歌">
-            <span>柳清歌</span>
-        </label>
-
-        <label class="option">
-            <input type="checkbox" value="洛冰河">
-            <span>洛冰河</span>
-        </label>
-
-        <label class="option">
-            <input type="checkbox" value="其他">
-            <span>其他</span>
-        </label>
-
-        <button type="submit" id="submitButton">
-            提交投票
-        </button>
-
-    </form>
-
-
-    <div id="message"></div>
-
-
-    <div id="results" class="hidden">
-
-        <h2>投票结果</h2>
-
-        <div id="resultList"></div>
-
-    </div>
-
-</div>
-
-
-<script src="script.js"></script>
-
-</body>
-
-</html>
+fetch(API_URL)
+  .then(r => r.json())
+  .then(d => {
+    if (!d.success || !d.options.length) throw new Error("没有拿到选项");
+    showForm(d.options);
+  })
+  .catch(err => { app.textContent = "加载失败：" + err; });
+</script>
