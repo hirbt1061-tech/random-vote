@@ -290,6 +290,9 @@ input[type=number] {
 
 <script>
 
+// 固定 Apps Script 后端地址，不再依赖 localStorage
+const FIXED_API_URL = "https://script.google.com/macros/s/AKfycbyr48uqkkW6qVEY7xoB75aI8uoroWFJejuRTr2Id3gOSLpQUggzL9HW6_Q6NAjRTWPHOA/exec";
+
 const qs =
   new URLSearchParams(
     location.search
@@ -302,10 +305,7 @@ const pollId =
 
 const state = {
 
-  api:
-    localStorage.getItem(
-      "vote_api"
-    ) || "",
+  api: FIXED_API_URL,
 
   adminKey:
     sessionStorage.getItem(
@@ -333,15 +333,6 @@ function esc(s) {
 
 
 function apiCall(body) {
-
-  if (!state.api) {
-
-    throw new Error(
-      "还没有设置 Apps Script Web App URL"
-    );
-
-  }
-
 
   return fetch(
     state.api,
@@ -383,7 +374,7 @@ function apiCall(body) {
     }
 
 
-    if (!data.ok) {
+    if (data.ok === false || data.success === false) {
 
       throw new Error(
         data.error ||
@@ -402,17 +393,6 @@ function apiCall(body) {
 
 function getData() {
 
-  if (!state.api) {
-
-    return Promise.reject(
-      new Error(
-        "请先设置后端 URL"
-      )
-    );
-
-  }
-
-
   return fetch(
 
     state.api +
@@ -427,7 +407,7 @@ function getData() {
 
   .then(d => {
 
-    if (!d.ok) {
+    if (d.ok === false || d.success === false) {
 
       throw new Error(
         d.error ||
@@ -467,7 +447,7 @@ function renderSetup() {
     <input
       id="api"
       type="url"
-      placeholder="https://script.google.com/macros/s/……/exec"
+      readonly
       value="${esc(state.api)}"
     >
 
@@ -663,12 +643,6 @@ function addOpt(v="") {
 
 async function createPoll() {
 
-  const api =
-    document.getElementById(
-      "api"
-    ).value.trim();
-
-
   const key =
     document.getElementById(
       "key"
@@ -727,7 +701,6 @@ async function createPoll() {
 
 
   if (
-    !api ||
     !key ||
     !title ||
     options.length < 2
@@ -740,16 +713,7 @@ async function createPoll() {
   }
 
 
-  state.api = api;
-
   state.adminKey = key;
-
-
-  localStorage.setItem(
-    "vote_api",
-    api
-  );
-
 
   sessionStorage.setItem(
     "vote_admin_key",
@@ -786,12 +750,14 @@ async function createPoll() {
       });
 
 
+    const pollIdVal = d.pollId || (d.poll && d.poll.id);
+
     const url =
       location.origin +
       location.pathname +
       "?poll=" +
       encodeURIComponent(
-        d.pollId
+        pollIdVal
       );
 
 
@@ -807,7 +773,7 @@ async function createPoll() {
       <div class="notice">
 
         投票 ID：
-        ${esc(d.pollId)}
+        ${esc(pollIdVal)}
 
       </div>
 
@@ -850,7 +816,7 @@ async function createPoll() {
           onclick="
             location.href =
               '?poll=${encodeURIComponent(
-                d.pollId
+                pollIdVal
               )}'
           "
         >
@@ -887,7 +853,15 @@ async function renderPoll() {
 
 
     const p =
-      d.poll;
+      d.poll || d;
+
+
+    const pollType = p.type || "single";
+    const pollTotal = p.total || 0;
+    const pollMin = p.minChoices || 1;
+    const pollMax = p.maxChoices || 0;
+    const pollTitle = p.title || "在线投票";
+    const pollOpts = p.options || [];
 
 
     document.getElementById(
@@ -895,19 +869,19 @@ async function renderPoll() {
     ).innerHTML = `
 
       <h1>
-        ${esc(p.title)}
+        ${esc(pollTitle)}
       </h1>
 
 
       <div class="muted">
 
         ${
-          p.type === "multiple"
+          pollType === "multiple"
             ? "多选投票"
             : "单选投票"
         }
 
-        · 共 ${p.total} 票
+        · 共 ${pollTotal} 票
 
       </div>
 
@@ -923,10 +897,10 @@ async function renderPoll() {
       <div class="small">
 
         ${
-          p.type === "multiple"
-            ? `可选择 ${p.minChoices} 个以上${
-                p.maxChoices > 0
-                  ? `，最多 ${p.maxChoices} 个`
+          pollType === "multiple"
+            ? `可选择 ${pollMin} 个以上${
+                pollMax > 0
+                  ? `，最多 ${pollMax} 个`
                   : ""
               }。`
             : "请选择一个选项。"
@@ -939,7 +913,7 @@ async function renderPoll() {
 
     const alreadyVoted =
       localStorage.getItem(
-        "voted_" + p.id
+        "voted_" + pollId
       );
 
 
@@ -947,18 +921,16 @@ async function renderPoll() {
       alreadyVoted
     ) {
 
-      showResults(
-        p,
-        d.results
-      );
-
+      if (d.results) {
+        showResults(pollTotal, d.results);
+      }
       return;
 
     }
 
 
     let inputType =
-      p.type === "multiple"
+      pollType === "multiple"
         ? "checkbox"
         : "radio";
 
@@ -967,7 +939,7 @@ async function renderPoll() {
       "voteBox"
     ).innerHTML = `
 
-      ${p.options.map(
+      ${pollOpts.map(
         (o,i) => `
 
           <label class="option">
@@ -990,18 +962,18 @@ async function renderPoll() {
 
       <button
         class="btn"
-        onclick="submitVote()"
+        style="margin-top:12px;"
+        onclick="submitVote('${pollType}', ${pollMin}, ${pollMax})"
       >
-        投票
+        提交投票
       </button>
 
     `;
 
 
-    showResults(
-      p,
-      d.results
-    );
+    if (d.results) {
+      showResults(pollTotal, d.results);
+    }
 
   }
 
@@ -1030,7 +1002,7 @@ async function renderPoll() {
 // 提交投票
 // ================================
 
-async function submitVote() {
+async function submitVote(type, minChoices, maxChoices) {
 
   const selected =
     [
@@ -1054,6 +1026,15 @@ async function submitVote() {
 
   }
 
+  if (type === "multiple") {
+    if (minChoices > 0 && selected.length < minChoices) {
+      return alert(`请至少选择 ${minChoices} 个选项。`);
+    }
+    if (maxChoices > 0 && selected.length > maxChoices) {
+      return alert(`最多只能选择 ${maxChoices} 个选项。`);
+    }
+  }
+
 
   try {
 
@@ -1066,6 +1047,9 @@ async function submitVote() {
         pollId,
 
       selectedOptions:
+        selected,
+
+      selected:
         selected
 
     });
@@ -1077,6 +1061,7 @@ async function submitVote() {
     );
 
 
+    alert("投票成功！");
     renderPoll();
 
   }
@@ -1097,13 +1082,9 @@ async function submitVote() {
 // ================================
 
 function showResults(
-  p,
+  total,
   results
 ) {
-
-  const total =
-    p.total;
-
 
   document.getElementById(
     "results"
@@ -1119,9 +1100,12 @@ function showResults(
     ${results.map(
       r => {
 
+        const count = r.count !== undefined ? r.count : (r.votes || 0);
+        const optText = r.option !== undefined ? r.option : (r.text || "");
+
         const pct =
           total
-            ? r.count /
+            ? count /
               total *
               100
             : 0;
@@ -1134,12 +1118,11 @@ function showResults(
             <div class="result-head">
 
               <span>
-                ${esc(r.option)}
+                ${esc(optText)}
               </span>
 
               <b>
-                ${pct.toFixed(1)}%
-                ${r.count}票
+                ${pct.toFixed(1)}\%                 (${count}票)
               </b>
 
             </div>
