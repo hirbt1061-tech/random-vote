@@ -15,10 +15,11 @@ function esc(s) {
 }
 
 function showResults(results) {
-  app.innerHTML = results.map(r =>
-    '<div style="margin:8px 0">' + esc(r.option) + "：" + r.percentage + "%（" + r.votes + "票）" +
-    '<div style="background:#eee"><div style="background:#4a8;height:10px;width:' + r.percentage + '%"></div></div></div>'
-  ).join("");
+  app.innerHTML = OPTIONS.map(o => {
+    const r = results.find(x => x.option === o) || { votes: 0, percentage: 0 };
+    return '<div style="margin:8px 0">' + esc(o) + "：" + r.percentage + "%（" + r.votes + "票）" +
+      '<div style="background:#eee"><div style="background:#4a8;height:10px;width:' + r.percentage + '%"></div></div></div>';
+  }).join("");
 }
 
 function showForm(options) {
@@ -46,11 +47,5 @@ function showForm(options) {
   };
 }
 
-fetch(API_URL)
-  .then(r => r.json())
-  .then(d => {
-    if (!d.success || !d.options.length) throw new Error("没有拿到选项");
-    showForm(d.options);
-  })
-  .catch(err => { app.textContent = "加载失败：" + err; });
-</script>
+const OPTIONS = ["选项一", "选项二", "选项三"];   // 以后改选项只改这里
+showForm(OPTIONS);
