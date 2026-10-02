@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>匿名投票</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#222;background:#f6f6f6}
+*{box-sizing:border-box} body{margin:0;padding:28px 16px}
+.card{max-width:680px;margin:0 auto;background:#fff;border-radius:18px;padding:24px;box-shadow:0 6px 30px #00000010}
+h1{font-size:25px;margin:0 0 8px}.muted{color:#777;font-size:14px}
+.option{display:flex;gap:10px;align-items:center;border:1px solid #ddd;border-radius:12px;padding:12px;margin:10px 0;cursor:pointer}
+.option input{width:18px;height:18px}.btn{border:0;border-radius:12px;padding:11px 16px;cursor:pointer;font-size:15px;background:#222;color:#fff}
+.btn.secondary{background:#eee;color:#222}.btn.danger{background:#a33}.row{display:flex;gap:10px;flex-wrap:wrap}
+input[type=text],input[type=password],input[type=url]{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:15px}
+label{display:block;font-weight:600;margin:15px 0 7px}.option-input{display:flex;gap:8px;margin:8px 0}.option-input input{flex:1}
+.progress{height:12px;background:#eee;border-radius:99px;overflow:hidden}.bar{height:100%;background:#222}
+.result{margin:15px 0}.result-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.hidden{display:none}.notice{padding:11px 13px;border-radius:10px;background:#f1f1f1;margin:12px 0;font-size:14px}
+.small{font-size:12px;color:#888;line-height:1.5}.divider{height:1px;background:#eee;margin:22px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="app"></div>
+</div>
+<script>
+const qs = new URLSearchParams(location.search);
+const pollId = qs.get("poll");
+
+const state = {
+  api: localStorage.getItem("vote_api") || "",
+  adminKey: sessionStorage.getItem("vote_admin_key") || ""
+};
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function apiCall(body){
+  if(!state.api) throw new Error("还没有设置 Apps Script Web App URL");
+  return fetch(state.api,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(body)
+  }).then(async r=>{
+    const text=await r.text();
+    let data; try{data=JSON.parse(text)}catch{throw new Error(text||"服务器返回异常")}
+    if(!data.ok) throw new Error(data.error||"操作失败");
+    return data;
+  });
+}
+function getData(){
+  if(!state.api) return Promise.reject(new Error("请先设置后端 URL"));
+  return fetch(state.api+"?action=getPoll&pollId="+encodeURIComponent(pollId))
+    .then(r=>r.json()).then(d=>{if(!d.ok)throw new Error(d.error||"读取失败");return d});
+}
+function renderSetup(){
+  document.getElementById("app").innerHTML=`
+    <h1>投票创建器</h1>
+    <div class="muted">创建后会生成一个可直接分享的投票链接。投票结果长期保存在 Google Sheets。</div>
+    <label>Apps Script Web App URL</label>
+    <input id="api" type="url" placeholder="https://script.google.com/macros/s/……/exec" value="${esc(state.api)}">
+    <label>管理员密钥</label>
+    <input id="key" type="password" placeholder="只在创建投票时使用">
+    <div class="notice">管理员密钥不要放进公开链接。真正的权限校验在 Apps Script 后端完成。</div>
+    <label>投票标题</label>
+    <input id="title" type="text" placeholder="例如：你最喜欢哪种结局？">
+    <label>选项</label>
+    <div id="opts"></div>
+    <div class="row">
+      <button class="btn secondary" onclick="addOpt()">＋添加选项</button>
+      <button class="btn" onclick="createPoll()">创建投票</button>
+    </div>
+    <div class="divider"></div>
+    <div class="small">已有投票：在地址后加 <b>?poll=投票ID</b> 即可打开。</div>
+  `;
+  addOpt();addOpt();
+}
+function addOpt(v=""){
+  const box=document.getElementById("opts");
+  const row=document.createElement("div");row.className="option-input";
+  row.innerHTML=`<input type="text" placeholder="选项 ${box.children.length+1}" value="${esc(v)}"><button class="btn secondary" onclick="this.parentElement.remove()">删除</button>`;
+  box.appendChild(row);
+}
+async function createPoll(){
+  const api=document.getElementById("api").value.trim();
+  const key=document.getElementById("key").value;
+  const title=document.getElementById("title").value.trim();
+  const options=[...document.querySelectorAll("#opts input")].map(x=>x.value.trim()).filter(Boolean);
+  if(!api||!key||!title||options.length<2) return alert("请填写后端 URL、管理员密钥、标题，并至少设置两个选项。");
+  state.api=api;state.adminKey=key;
+  localStorage.setItem("vote_api",api);sessionStorage.setItem("vote_admin_key",key);
+  try{
+    const d=await apiCall({action:"createPoll",adminKey:key,title,options});
+    const url=location.origin+location.pathname+"?poll="+encodeURIComponent(d.pollId);
+    document.getElementById("app").innerHTML=`
+      <h1>投票已创建</h1>
+      <div class="notice">投票 ID：${esc(d.pollId)}</div>
+      <label>分享链接</label>
+      <input id="shareUrl" type="text" readonly value="${esc(url)}">
+      <div class="row" style="margin-top:10px">
+        <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value);alert('已复制')">复制链接</button>
+        <button class="btn secondary" onclick="location.href='?poll=${encodeURIComponent(d.pollId)}'">打开投票</button>
+      </div>
+      <div class="divider"></div>
+      <button class="btn secondary" onclick="location.href=location.pathname">继续创建另一个</button>
+    `;
+  }catch(e){alert(e.message)}
+}
+async function renderPoll(){
+  try{
+    const d=await getData();
+    const p=d.poll;
+    document.getElementById("app").innerHTML=`
+      <h1>${esc(p.title)}</h1>
+      <div class="muted">共 ${p.total} 票 · 长期开放</div>
+      <div id="voteBox"></div>
+      <div id="results"></div>
+      <div class="divider"></div>
+      <div class="small">结果会显示实时票数和比例。每个浏览器默认只允许投一次，防重复仅依赖浏览器本地存储，并非严格身份认证。</div>
+    `;
+    if(localStorage.getItem("voted_"+p.id)) showResults(p,d.results);
+    else {
+      document.getElementById("voteBox").innerHTML=p.options.map((o,i)=>`
+        <label class="option"><input type="radio" name="vote" value="${i}"><span>${esc(o)}</span></label>
+      `).join("")+`<button class="btn" onclick="submitVote()">投票</button>`;
+      showResults(p,d.results);
+    }
+  }catch(e){
+    document.getElementById("app").innerHTML=`<h1>打不开投票</h1><div class="notice">${esc(e.message)}</div><button class="btn secondary" onclick="location.href=location.pathname">返回创建器</button>`;
+  }
+}
+function showResults(p,results){
+  const total=results.reduce((a,b)=>a+b.count,0);
+  document.getElementById("results").innerHTML=`
+    <div class="divider"></div><h2 style="font-size:19px">当前结果</h2>
+    ${results.map(r=>{
+      const pct=total? r.count/total*100:0;
+      return `<div class="result"><div class="result-head"><span>${esc(r.option)}</span><b>${pct.toFixed(1)}%　${r.count}票</b></div><div class="progress"><div class="bar" style="width:${pct}%"></div></div></div>`;
+    }).join("")}
+    <div class="muted">总票数：${total}</div>
+  `;
+}
+async function submitVote(){
+  const selected=document.querySelector('input[name="vote"]:checked');
+  if(!selected)return alert("请选择一个选项。");
+  try{
+    await apiCall({action:"vote",pollId,optionIndex:Number(selected.value)});
+    localStorage.setItem("voted_"+pollId,"1");
+    renderPoll();
+  }catch(e){alert(e.message)}
+}
+if(pollId) renderPoll(); else renderSetup();
+</script>
+</body>
+</html>
